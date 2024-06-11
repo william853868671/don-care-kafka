@@ -1,0 +1,61 @@
+group 'com.github.william853868671'
+version "${parent.version}"
+
+dependencies {
+    compileOnly 'ch.qos.logback:logback-classic:1.5.6'
+    implementation 'org.slf4j:slf4j-api:2.0.13'
+    implementation 'org.apache.kafka:kafka-clients:3.7.0'
+}
+
+jar{
+    enabled = true
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    from sourceSets.main.allJava
+    archiveClassifier = 'sources'
+}
+
+def releasesRepositoryUrl="${nexusUrl7138}/repository/maven-releases/"
+
+def snapshotsRepositoryUrl="${nexusUrl7138}/repository/maven-snapshots/"
+
+publishing {
+    publications {
+        devicePublish(MavenPublication) {
+            artifactId = project.name
+            groupId = group
+            version = version
+
+            from components.java
+//            artifact sourcesJar
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+
+        }
+    }
+    repositories {
+        maven {
+            allowInsecureProtocol(true)
+            // 判断你上传的项目版本结尾是稳定版还是测试版
+            if (project.version.toString().endsWith("-SNAPSHOT")) {
+                name = "snapshotsRepo"
+                url = uri(snapshotsRepositoryUrl)
+            } else {
+                name = "releasesRepo"
+                url = uri(releasesRepositoryUrl)
+            }
+            //认证用户和密码
+            credentials {
+                username 'aaaaaaaa'
+                password 'aaaaaaaa'
+            }
+        }
+    }
+}

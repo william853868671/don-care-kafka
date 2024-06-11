@@ -1,0 +1,4 @@
+rootProject.name = 'don-care-kafka'
+include 'don-care-kafka-logback-appender'
+
+
